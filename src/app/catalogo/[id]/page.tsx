@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useCart } from '@/context/CartContext';
 
 // Datos de ejemplo (mismos productos del catálogo)
 const products = [
@@ -70,6 +71,21 @@ const products = [
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
   const [quantity, setQuantity] = useState(product?.minOrder || 1);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
+
+const handleAddToCart = () => {
+  if (!product) return;
+  addItem({
+    id: product.id,
+    name: product.name,
+    image: product.image,
+    minOrder: product.minOrder,
+    quantity,
+  });
+  setAdded(true);
+  setTimeout(() => setAdded(false), 3000);
+};
 
   if (!product) {
     return (
@@ -144,12 +160,23 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
 
 
+              {/* Mensaje de confirmación */}
+              {added && (
+                <p className="text-xs text-green-600 font-medium mb-3">
+                  ✓ Agregado a cotización ({quantity} unidades)
+                </p>
+              )}
+
               {/* Botones */}
               <button
-                onClick={() => alert(`Agregado ${quantity} unidades a cotización`)}
-                className="w-full px-4 py-3 bg-ihm-blue text-white rounded-lg font-semibold hover:opacity-90 transition mb-3"
+                onClick={handleAddToCart}
+                className={`w-full px-4 py-3 rounded-lg font-semibold transition mb-3 ${
+                  added
+                    ? 'bg-green-500 text-white'
+                    : 'bg-ihm-blue text-white hover:opacity-90'
+                }`}
               >
-                Agregar a Cotización
+                {added ? '✓ Agregado a Cotización' : 'Agregar a Cotización'}
               </button>
 
               <Link

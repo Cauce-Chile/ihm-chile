@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   id: string;
@@ -11,6 +13,15 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ id, name, description, image, minOrder }: ProductCardProps) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addItem({ id, name, image, minOrder, quantity: minOrder });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 3000);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full">
       {/* Imagen */}
@@ -30,6 +41,13 @@ export default function ProductCard({ id, name, description, image, minOrder }: 
           Mín. {minOrder} unidades
         </p>
 
+        {/* Mensaje de confirmación */}
+        {added && (
+          <p className="text-xs text-green-600 font-medium mb-2">
+            ✓ Agregado a cotización ({minOrder} unidades mínimas)
+          </p>
+        )}
+
         {/* Botones */}
         <div className="flex gap-2">
           <Link
@@ -39,10 +57,14 @@ export default function ProductCard({ id, name, description, image, minOrder }: 
             Ver Detalles
           </Link>
           <button
-            onClick={() => alert(`Agregado: ${name}`)}
-            className="flex-1 px-3 py-2 border border-ihm-blue text-ihm-blue text-sm rounded hover:bg-ihm-light transition"
+            onClick={handleAddToCart}
+            className={`flex-1 px-3 py-2 border text-sm rounded transition ${
+              added
+                ? 'border-green-500 text-green-600 bg-green-50'
+                : 'border-ihm-blue text-ihm-blue hover:bg-ihm-light'
+            }`}
           >
-            Cotizar
+            {added ? '✓ Agregado' : 'Cotizar'}
           </button>
         </div>
       </div>
