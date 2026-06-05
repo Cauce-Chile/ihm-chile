@@ -181,10 +181,17 @@ const handleAddToCart = () => {
 
               <Link
                 href="/catalogo"
-                className="block w-full px-4 py-3 border border-ihm-blue text-ihm-blue rounded-lg font-semibold hover:bg-ihm-light transition text-center"
+                className="block w-full px-4 py-3 border border-ihm-blue text-ihm-blue rounded-lg font-semibold hover:bg-ihm-light transition text-center mb-3"
               >
-                Continuar Comprando
+                Continuar Cotizando
               </Link>
+              <Link
+                  href="/cotizacion"
+                  className="block w-full px-4 py-3 bg-ihm-blue text-white rounded-lg font-semibold hover:opacity-90 transition text-center"
+                >
+                Ver Cotización
+              </Link>
+
             </div>
           </div>
         </div>

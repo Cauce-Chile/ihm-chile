@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from '@/context/CartContext';
+import FloatingCartButton from "@/components/FloatingCartButton";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <CartProvider>
           <Navbar />
+          <FloatingCartButton />
           <main className="flex-1">
             {children}
           </main>
