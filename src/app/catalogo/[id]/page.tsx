@@ -71,21 +71,27 @@ const products = [
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
   const [quantity, setQuantity] = useState(product?.minOrder || 1);
+  const [inputValue, setInputValue] = useState(String(product?.minOrder || 1));
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
 
-const handleAddToCart = () => {
-  if (!product) return;
-  addItem({
-    id: product.id,
-    name: product.name,
-    image: product.image,
-    minOrder: product.minOrder,
-    quantity,
-  });
-  setAdded(true);
-  setTimeout(() => setAdded(false), 3000);
-};
+  const handleAddToCart = () => {
+    if (!product) return;
+    const safeQuantity = Math.max(product.minOrder, quantity);
+    if (safeQuantity !== quantity) {
+      setQuantity(safeQuantity);
+      setInputValue(String(safeQuantity));
+    }
+    addItem({
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      minOrder: product.minOrder,
+      quantity: safeQuantity,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 3000);
+  };
 
   if (!product) {
     return (
@@ -152,8 +158,19 @@ const handleAddToCart = () => {
                   type="number"
                   min={product.minOrder}
                   step={product.minOrder}
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(product.minOrder, parseInt(e.target.value) || 0))}
+                  value={inputValue}
+                  onFocus={() => setInputValue('')}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    const parsed = parseInt(e.target.value);
+                    if (!isNaN(parsed)) setQuantity(parsed);
+                  }}
+                  onBlur={() => {
+                    const parsed = parseInt(inputValue);
+                    const safe = isNaN(parsed) || parsed < product.minOrder ? product.minOrder : parsed;
+                    setQuantity(safe);
+                    setInputValue(String(safe));
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ihm-blue"
                   style={{ color: '#2D2D2D', fontWeight: '600' }}
                 />
