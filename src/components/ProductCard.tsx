@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
+
+const IMAGEN_PLACEHOLDER = '/images/placeholder_cajas.jpg';
 
 interface ProductCardProps {
   id: string;
@@ -16,8 +19,10 @@ export default function ProductCard({ id, name, description, image, minOrder }: 
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
 
+  const imagenSrc = image || IMAGEN_PLACEHOLDER;
+
   const handleAddToCart = () => {
-    addItem({ id, name, image, minOrder, quantity: minOrder });
+    addItem({ id, name, image: imagenSrc, minOrder, quantity: minOrder });
     setAdded(true);
     setTimeout(() => setAdded(false), 3000);
   };
@@ -25,11 +30,12 @@ export default function ProductCard({ id, name, description, image, minOrder }: 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full">
       {/* Imagen */}
-      <div className="w-full h-48 bg-ihm-light overflow-hidden">
-        <img
-          src={image}
+      <div className="relative w-full h-48 bg-ihm-light overflow-hidden">
+        <Image
+          src={imagenSrc}
           alt={name}
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
         />
       </div>
 
@@ -41,7 +47,6 @@ export default function ProductCard({ id, name, description, image, minOrder }: 
           Mín. {minOrder} unidades
         </p>
 
-        {/* Mensaje de confirmación */}
         {added && (
           <p className="text-xs text-green-600 font-medium mb-2">
             ✓ Agregado a cotización ({minOrder} unidades mínimas)

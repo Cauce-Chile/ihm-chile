@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Crear cliente Supabase con anon key
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -9,22 +8,29 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    // Obtener todos los productos activos de Supabase
+    // Obtener TODOS los productos (sin filtro)
     const { data, error } = await supabase
       .from('productos')
       .select('*')
-      .eq('activo', true)
       .order('nombre', { ascending: true });
 
     if (error) {
+      console.error('❌ Error Supabase:', error);
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(data);
-  } catch {
+    // Filtrar en JavaScript los que tengan activo = true
+    const productosActivos = (data || []).filter(
+      (producto: { activo: boolean }) => producto.activo === true
+    );
+
+    console.log('✅ Productos activos:', productosActivos.length);
+    return NextResponse.json(productosActivos);
+  } catch (err) {
+    console.error('❌ Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

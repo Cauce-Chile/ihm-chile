@@ -23,7 +23,7 @@ export default function CotizarPage() {
     return emailRegex.test(email);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors: Record<string, string> = {};
@@ -56,20 +56,45 @@ export default function CotizarPage() {
       return;
     }
 
-    // Si no hay errores
-    console.log('Formulario válido. Datos:', formData);
-    clearCart();
+    try {
+      // Enviar cotización a la API
+      const response = await fetch('/api/cotizaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          correo: formData.correo,
+          telefono: `${formData.codigoPais}${formData.telefono}`,
+          pais: formData.codigoPais,
+          mensaje: formData.mensaje,
+          items: items.map((item: { id: string; quantity: number }) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
 
-    // Guardar datos en localStorage para la página de confirmación
-    localStorage.setItem('confirmationData', JSON.stringify({
-      nombre: formData.nombre,
-      correo: formData.correo,
-      codigoPais: formData.codigoPais,
-      telefono: formData.telefono,
-    }));
+      if (!response.ok) {
+        throw new Error('Error al enviar la cotización');
+      }
 
-    // Redirigir a página de confirmación
-    window.location.href = '/confirmacion';
+      // Limpiar carrito
+      clearCart();
+
+      // Guardar datos en localStorage para la página de confirmación
+      localStorage.setItem('confirmationData', JSON.stringify({
+        nombre: formData.nombre,
+        correo: formData.correo,
+        codigoPais: formData.codigoPais,
+        telefono: formData.telefono,
+      }));
+
+      // Redirigir a página de confirmación
+      window.location.href = '/confirmacion';
+
+    } catch {
+      setErrors({ general: 'Hubo un error al enviar tu cotización. Por favor intenta de nuevo.' });
+    }
   };
 
   // Si no hay items en el carrito, mostrar mensaje
@@ -240,6 +265,13 @@ export default function CotizarPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ihm-blue placeholder-gray-400 text-gray-900"
               />
             </div>
+
+          {/* Error general */}
+            {errors.general && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{errors.general}</p>
+              </div>
+            )}
 
             {/* Botones */}
             <div className="flex gap-3 pt-6">

@@ -1,52 +1,33 @@
 import ProductCard from '@/components/ProductCard';
 
-// Datos de ejemplo (estáticos por ahora)
-const products = [
-  {
-    id: '1',
-    name: 'Manilla de Acero Inoxidable',
-    description: 'Manilla de puerta de alta durabilidad, resistente a corrosión.',
-    image: 'https://images.unsplash.com/photo-1580273455191-1c62238fa333?w=400&h=300&fit=crop',
-    minOrder: 50,
-  },
-  {
-    id: '2',
-    name: 'Cerradura de Seguridad',
-    description: 'Cerradura cilíndrica de latón, sistema de doble vuelta.',
-    image: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&h=300&fit=crop',
-    minOrder: 100,
-  },
-  {
-    id: '3',
-    name: 'Bisagra Industrial',
-    description: 'Bisagra de acero 304, carga máxima 150kg.',
-    image: 'https://images.unsplash.com/photo-1565182999555-efaf395930a1?w=400&h=300&fit=crop',
-    minOrder: 200,
-  },
-  {
-    id: '4',
-    name: 'Tornillo Cabeza Hexagonal',
-    description: 'M8x30mm, acero galvanizado, caja de 100 unidades.',
-    image: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=300&fit=crop',
-    minOrder: 500,
-  },
-  {
-    id: '5',
-    name: 'Tuerca Métrica',
-    description: 'M8, acero inoxidable A4, caja de 50 unidades.',
-    image: 'https://images.unsplash.com/photo-1586864387789-628dde76cce9?w=400&h=300&fit=crop',
-    minOrder: 1000,
-  },
-  {
-    id: '6',
-    name: 'Arandela Plana',
-    description: 'Acero galvanizado, variadas medidas disponibles.',
-    image: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&h=300&fit=crop',
-    minOrder: 2000,
-  },
-];
+// Tipo de dato que viene desde Supabase
+interface Producto {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  cantidad_minima: number;
+  imagen_url: string | null;
+  activo: boolean;
+}
 
-export default function CatalogPage() {
+// Función que obtiene productos desde la API (se ejecuta en el servidor)
+async function getProductos(): Promise<Producto[]> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL ? 'http://localhost:3000' : ''}/api/productos`, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) return [];
+
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+export default async function CatalogPage() {
+  const productos = await getProductos();
+
   return (
     <main className="min-h-screen bg-white">
       {/* Header */}
@@ -59,11 +40,24 @@ export default function CatalogPage() {
 
       {/* Grid de productos */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {productos.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No hay productos disponibles en este momento.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {productos.map((producto) => (
+              <ProductCard
+                key={producto.id}
+                id={producto.id}
+                name={producto.nombre}
+                description={producto.descripcion || ''}
+                image={producto.imagen_url || '/images/placeholder_cajas.jpg'}
+                minOrder={producto.cantidad_minima}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
