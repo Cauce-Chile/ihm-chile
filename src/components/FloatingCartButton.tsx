@@ -13,7 +13,7 @@ export default function FloatingCartButton() {
   // Ocultar si:
   // 1. No hay items en el carrito
   // 2. Estamos en /cotizacion o /cotizar
-  if (itemCount === 0 || pathname === '/cotizacion' || pathname === '/cotizar') {
+  if (itemCount === 0 || pathname === '/cotizacion' || pathname === '/cotizar' || pathname.startsWith('/admin')) {
     return null;
   }
 

@@ -18,11 +18,10 @@ interface ProductCardProps {
 export default function ProductCard({ id, name, description, image, minOrder }: ProductCardProps) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
-
-  const imagenSrc = image || IMAGEN_PLACEHOLDER;
+  const [imgSrc, setImgSrc] = useState(image || IMAGEN_PLACEHOLDER);
 
   const handleAddToCart = () => {
-    addItem({ id, name, image: imagenSrc, minOrder, quantity: minOrder });
+    addItem({ id, name, image: imgSrc, minOrder, quantity: minOrder });
     setAdded(true);
     setTimeout(() => setAdded(false), 3000);
   };
@@ -32,10 +31,11 @@ export default function ProductCard({ id, name, description, image, minOrder }: 
       {/* Imagen */}
       <div className="relative w-full h-48 bg-ihm-light overflow-hidden">
         <Image
-          src={imagenSrc}
+          src={imgSrc}
           alt={name}
           fill
           className="object-cover"
+          onError={() => setImgSrc(IMAGEN_PLACEHOLDER)}
         />
       </div>
 

@@ -43,6 +43,8 @@ export default function Footer() {
         <div className="border-t border-gray-700 mt-10 pt-6 text-center text-gray-500 text-sm">
           © {new Date().getFullYear()} IHM Chile. Todos los derechos reservados. |{" "}
           <a href="https://www.caucechile.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Desarrollado por Cauce Chile</a>
+          {" | "}
+<Link href="/admin/login" className="hover:text-gray-300 transition-colors">Acceso Admin</Link>
         </div>
 
       </div>

@@ -25,3 +25,9 @@ body {
     text-wrap: balance;
   }
 }
+
+
+/* Input text color fix */
+input, textarea, select {
+  color: #2D2D2D; /* ihm-dark */
+}

@@ -25,9 +25,8 @@ export default function ProductDetailClient({
   const [quantity, setQuantity] = useState(producto.cantidad_minima);
   const [inputValue, setInputValue] = useState(String(producto.cantidad_minima));
   const [added, setAdded] = useState(false);
+  const [imgSrc, setImgSrc] = useState(producto.imagen_url || IMAGEN_PLACEHOLDER);
   const { addItem } = useCart();
-
-  const imagenSrc = producto.imagen_url || IMAGEN_PLACEHOLDER;
 
   const handleAddToCart = () => {
     const safeQuantity = Math.max(producto.cantidad_minima, quantity);
@@ -38,7 +37,7 @@ export default function ProductDetailClient({
     addItem({
       id: producto.id,
       name: producto.nombre,
-      image: imagenSrc,
+      image: imgSrc,
       minOrder: producto.cantidad_minima,
       quantity: safeQuantity,
     });
@@ -63,10 +62,11 @@ export default function ProductDetailClient({
           {/* Imagen */}
           <div className="relative flex items-center justify-center bg-ihm-light rounded-lg p-8 min-h-[300px]">
             <Image
-              src={imagenSrc}
+              src={imgSrc}
               alt={producto.nombre}
               fill
               className="object-contain rounded p-4"
+              onError={() => setImgSrc(IMAGEN_PLACEHOLDER)}
             />
           </div>
 
