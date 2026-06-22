@@ -13,7 +13,8 @@ interface Producto {
 // Función que obtiene productos desde la API (se ejecuta en el servidor)
 async function getProductos(): Promise<Producto[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL ? 'http://localhost:3000' : ''}/api/productos`, {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/productos`, {
       cache: 'no-store',
     });
 
