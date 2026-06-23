@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,7 +25,7 @@ export default function LoginPage() {
     if (result?.error) {
       setError('Usuario o contraseña incorrectos.');
     } else {
-      router.push('/admin');
+      window.location.href = '/admin';
     }
   }
 
