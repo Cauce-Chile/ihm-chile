@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -47,13 +48,14 @@ export default function AdminPage() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <Link href="/admin/productos" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition block">
             <h2 className="text-lg font-semibold text-ihm-dark mb-2">Productos</h2>
             <p className="text-gray-500 text-sm">Agregar, editar y desactivar productos del catálogo.</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          </Link>
+          <div className="bg-white rounded-xl shadow-sm p-6 opacity-60 cursor-not-allowed">
             <h2 className="text-lg font-semibold text-ihm-dark mb-2">Cotizaciones</h2>
             <p className="text-gray-500 text-sm">Ver y gestionar las cotizaciones recibidas.</p>
+            <p className="text-xs text-gray-400 mt-2 italic">Próximamente</p>
           </div>
         </div>
       </div>
