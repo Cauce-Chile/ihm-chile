@@ -10,9 +10,12 @@ interface Producto {
   activo: boolean;
 }
 
+export const dynamic = 'force-dynamic';
+
 async function getProducto(id: string): Promise<Producto | null> {
   try {
-    const res = await fetch(`http://localhost:3000/api/productos/${id}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/productos/${id}`, {
       cache: 'no-store',
     });
     if (!res.ok) return null;
