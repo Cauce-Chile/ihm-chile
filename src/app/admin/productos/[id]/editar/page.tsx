@@ -18,9 +18,14 @@ export default function EditarProductoPage() {
     nombre: '',
     descripcion: '',
     cantidad_minima: '',
-    imagen_url: '',
     precio: '',
   });
+
+  const [imagenUrl, setImagenUrl] = useState('');
+  const [imagenArchivo, setImagenArchivo] = useState<File | null>(null);
+  const [imagenPreview, setImagenPreview] = useState('');
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const [errorImagen, setErrorImagen] = useState('');
 
   useEffect(() => {
     const cargarProducto = async () => {
@@ -36,9 +41,10 @@ export default function EditarProductoPage() {
           nombre: data.nombre || '',
           descripcion: data.descripcion || '',
           cantidad_minima: data.cantidad_minima?.toString() || '',
-          imagen_url: data.imagen_url || '',
           precio: data.precio?.toString() || '',
         });
+        setImagenUrl(data.imagen_url || '');
+        setImagenPreview(data.imagen_url || '');
       } catch {
         setError('No se pudo cargar el producto.');
       } finally {
@@ -54,6 +60,14 @@ export default function EditarProductoPage() {
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError('');
+  };
+
+  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImagenArchivo(file);
+    setImagenPreview(URL.createObjectURL(file));
+    setErrorImagen('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,6 +86,32 @@ export default function EditarProductoPage() {
     setError('');
 
     try {
+      let urlFinal = imagenUrl;
+
+      if (imagenArchivo) {
+        setSubiendoImagen(true);
+        const formData = new FormData();
+        formData.append('file', imagenArchivo);
+
+        const uploadRes = await fetch('/api/admin/upload-imagen', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          setErrorImagen(uploadData.error || 'Error al subir la imagen');
+          setSaving(false);
+          setSubiendoImagen(false);
+          return;
+        }
+
+        urlFinal = uploadData.url;
+        setImagenUrl(urlFinal);
+        setSubiendoImagen(false);
+      }
+
       const res = await fetch(`/api/admin/productos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -79,7 +119,7 @@ export default function EditarProductoPage() {
           nombre: form.nombre.trim(),
           descripcion: form.descripcion.trim() || null,
           cantidad_minima: Number(form.cantidad_minima),
-          imagen_url: form.imagen_url.trim() || null,
+          imagen_url: urlFinal || null,
           precio: form.precio ? Number(form.precio) : null,
         }),
       });
@@ -174,21 +214,24 @@ export default function EditarProductoPage() {
 
           <div>
             <label className="block text-sm font-medium text-ihm-dark mb-1">
-              URL de imagen
+              Imagen del producto
             </label>
             <input
-              type="text"
-              name="imagen_url"
-              value={form.imagen_url}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ihm-blue"
-              placeholder="https://..."
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleImagenChange}
+              disabled={subiendoImagen}
+              className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-ihm-blue file:text-white hover:file:bg-blue-700 disabled:opacity-50 cursor-pointer file:cursor-pointer"
             />
+            <p className="text-xs text-gray-400 mt-1">JPG, PNG o WEBP · Máx. 2MB</p>
+            {errorImagen && (
+              <p className="text-xs text-red-500 mt-1">{errorImagen}</p>
+            )}
             <div className="mt-3">
               <p className="text-xs text-gray-400 mb-1">Vista previa:</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={form.imagen_url || '/images/placeholder_cajas.jpg'}
+                src={imagenPreview || '/images/placeholder_cajas.jpg'}
                 alt="Vista previa"
                 className="w-32 h-32 object-cover rounded border border-gray-200 bg-gray-50"
                 onError={(e) => { e.currentTarget.src = '/images/placeholder_cajas.jpg'; }}
@@ -220,7 +263,7 @@ export default function EditarProductoPage() {
               disabled={saving}
               className="bg-ihm-blue text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
             >
-              {saving ? 'Guardando...' : 'Guardar Cambios'}
+              {subiendoImagen ? 'Subiendo imagen...' : saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
             <Link
               href="/admin/productos"
