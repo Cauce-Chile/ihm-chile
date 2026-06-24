@@ -21,8 +21,6 @@ export async function GET() {
       .select('*')
       .order('nombre', { ascending: true });
 
-    console.log('📦 Total desde Supabase:', data?.length, '| IDs:', data?.map(p => p.nombre).join(', '));
-
     if (error) {
       console.error('❌ Error Supabase:', error);
       return NextResponse.json(
