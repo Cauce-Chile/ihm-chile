@@ -1,5 +1,7 @@
 import ProductCard from '@/components/ProductCard';
 
+export const dynamic = 'force-dynamic';
+
 // Tipo de dato que viene desde Supabase
 interface Producto {
   id: string;
