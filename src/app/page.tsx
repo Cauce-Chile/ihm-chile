@@ -1,9 +1,40 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import LogosEmpresas from '@/components/LogosEmpresas';
+import ProductCard from '@/components/ProductCard';
+
+interface ProductoReciente {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  imagen_url: string | null;
+  cantidad_minima: number;
+  activo: boolean;
+  creado_en: string;
+}
 
 export default function Home() {
+  const [productosRecientes, setProductosRecientes] = useState<ProductoReciente[]>([]);
+  const [loadingProductos, setLoadingProductos] = useState(true);
+
+  useEffect(() => {
+    const cargar = async () => {
+      try {
+        const res = await fetch('/api/productos/recientes', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Error');
+        const data = await res.json();
+        setProductosRecientes(data);
+      } catch {
+        setProductosRecientes([]);
+      } finally {
+        setLoadingProductos(false);
+      }
+    };
+    cargar();
+  }, []);
+
   return (
     <main className="min-h-screen bg-white">
       {/* HERO SECTION */}
@@ -152,29 +183,28 @@ export default function Home() {
             Amplia variedad de productos importados desde China, disponibles para cotizar en línea.
           </p>
 
-          {/* Grid placeholder de productos */}
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {[1, 2, 3].map((product) => (
-              <div
-                key={product}
-                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
-              >
-                <div className="w-full h-48 bg-gray-300 flex items-center justify-center">
-                  <span className="text-gray-500">Imagen Producto {product}</span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-ihm-dark mb-2">
-                    Producto Ejemplo {product}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Descripción del producto importado desde China.
-                  </p>
-                  <p className="text-ihm-blue font-semibold mb-4">
-                    Consultar precio
-                  </p>
-                </div>
-              </div>
-            ))}
+            {loadingProductos || productosRecientes.length === 0
+              ? [1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div className="w-full h-48 bg-gray-300" />
+                    <div className="p-6 space-y-3">
+                      <div className="h-5 bg-gray-200 rounded w-3/4" />
+                      <div className="h-4 bg-gray-200 rounded w-full" />
+                      <div className="h-4 bg-gray-200 rounded w-2/3" />
+                    </div>
+                  </div>
+                ))
+              : productosRecientes.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    id={p.id}
+                    name={p.nombre}
+                    description={p.descripcion ?? ''}
+                    image={p.imagen_url ?? ''}
+                    minOrder={p.cantidad_minima}
+                  />
+                ))}
           </div>
 
           <div className="text-center">

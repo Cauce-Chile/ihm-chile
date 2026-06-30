@@ -31,7 +31,7 @@ export default function RootLayout({
           <CartProvider>
             <Navbar />
             <FloatingCartButton />
-            <main className="flex-1">
+            <main className="flex-1 pt-16">
               {children}
             </main>
             <Footer />
