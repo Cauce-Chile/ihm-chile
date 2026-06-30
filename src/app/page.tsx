@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import LogosEmpresas from '@/components/LogosEmpresas';
 
 export default function Home() {
   return (
@@ -135,25 +136,10 @@ export default function Home() {
           Empresas que Confían en Nosotros
         </h2>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          Más de 50 empresas en Chile trabajan con IHM Chile para sus necesidades de importación.
+          Conoce algunas de las empresas que ya han confiado en la experiencia de IHM Chile para satisfacer sus necesidades de importación.
         </p>
 
-        {/* Grid de logos (placeholder) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
-          {/* Estos serán reemplazados con logos reales */}
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((client) => (
-            <div
-              key={client}
-              className="w-32 h-24 bg-ihm-light rounded-lg flex items-center justify-center border border-gray-200 hover:border-ihm-blue transition-colors"
-            >
-              <span className="text-gray-400 text-sm text-center px-2">Logo Cliente {client}</span>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-center text-gray-500 text-sm mt-8 italic">
-          Los logos serán agregados próximamente
-        </p>
+        <LogosEmpresas />
       </section>
 
       {/* CATALOGO PREVIEW SECTION */}

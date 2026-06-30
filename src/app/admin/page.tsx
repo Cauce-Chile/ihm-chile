@@ -47,16 +47,19 @@ export default function AdminPage() {
           Desde aquí podrás gestionar los productos y cotizaciones de IHM Chile.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <Link href="/admin/productos" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition block">
             <h2 className="text-lg font-semibold text-ihm-dark mb-2">Productos</h2>
             <p className="text-gray-500 text-sm">Agregar, editar y desactivar productos del catálogo.</p>
           </Link>
-          <div className="bg-white rounded-xl shadow-sm p-6 opacity-60 cursor-not-allowed">
+          <Link href="/admin/cotizaciones" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition block">
             <h2 className="text-lg font-semibold text-ihm-dark mb-2">Cotizaciones</h2>
             <p className="text-gray-500 text-sm">Ver y gestionar las cotizaciones recibidas.</p>
-            <p className="text-xs text-gray-400 mt-2 italic">Próximamente</p>
-          </div>
+          </Link>
+          <Link href="/admin/empresas" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition block">
+            <h2 className="text-lg font-semibold text-ihm-dark mb-2">Empresas</h2>
+            <p className="text-gray-500 text-sm">Gestionar logos de empresas clientes.</p>
+          </Link>
         </div>
       </div>
     </div>
