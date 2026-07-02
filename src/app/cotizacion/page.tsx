@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart } = useCart();
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
   if (items.length === 0) {
     return (
@@ -68,13 +70,22 @@ export default function CartPage() {
                       type="number"
                       min={item.minOrder}
                       step={item.minOrder}
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateQuantity(
-                          item.id,
-                          Math.max(item.minOrder, parseInt(e.target.value) || 0)
-                        )
+                      value={inputValues[item.id] ?? String(item.quantity)}
+                      onFocus={() =>
+                        setInputValues((prev) => ({ ...prev, [item.id]: '' }))
                       }
+                      onChange={(e) =>
+                        setInputValues((prev) => ({ ...prev, [item.id]: e.target.value }))
+                      }
+                      onBlur={() => {
+                        const parsed = parseInt(inputValues[item.id]);
+                        const safe =
+                          isNaN(parsed) || parsed < item.minOrder
+                            ? item.minOrder
+                            : parsed;
+                        updateQuantity(item.id, safe);
+                        setInputValues((prev) => ({ ...prev, [item.id]: String(safe) }));
+                      }}
                       className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-ihm-blue"
                       style={{ color: '#2D2D2D', fontWeight: '600' }}
                     />

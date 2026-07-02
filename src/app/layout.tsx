@@ -13,10 +13,39 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "IHM Chile — Importadora de productos desde China",
+  metadataBase: new URL('https://ihmchile.com'),
+  title: "IHM Chile — Importadora de Productos con Proveedores Auditados",
   description:
-    "Catálogo de productos importados y sistema de cotización online para empresas chilenas.",
-  keywords: "importadora, productos China, catálogo, cotización, Chile",
+    "Catálogo de productos importados desde China, Chile, Brasil y Perú, con proveedores auditados. Cotización online para empresas chilenas.",
+  keywords: "importadora Chile, productos China, marketing promocional, vestuario, envases descartables, material POP, cotización online",
+  openGraph: {
+    title: "IHM Chile — Importadora de Productos con Proveedores Auditados",
+    description:
+      "Catálogo de productos importados desde China, Chile, Brasil y Perú, con proveedores auditados. Cotización online para empresas chilenas.",
+    url: 'https://ihmchile.com',
+    siteName: 'IHM Chile',
+    images: [
+      {
+        url: '/images/home-contenedores.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'IHM Chile — Importadora de Productos',
+      },
+    ],
+    locale: 'es_CL',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "IHM Chile — Importadora de Productos con Proveedores Auditados",
+    description:
+      "Catálogo de productos importados desde China, Chile, Brasil y Perú, con proveedores auditados.",
+    images: ['/images/home-contenedores.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

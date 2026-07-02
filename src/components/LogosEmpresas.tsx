@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 interface Empresa {
@@ -54,16 +55,17 @@ export default function LogosEmpresas() {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
-      {logos.map((empresa) => (
+      {logos.filter((empresa) => empresa.logo_url).map((empresa) => (
         <div
           key={empresa.id}
           className="w-32 h-24 bg-ihm-light rounded-lg flex items-center justify-center border border-gray-200 hover:border-ihm-blue transition-colors"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={empresa.logo_url || ''}
+          <Image
+            src={empresa.logo_url!}
             alt={empresa.nombre}
-            className="max-w-full max-h-full object-contain p-2"
+            width={128}
+            height={96}
+            className="object-contain p-2 w-full h-full"
           />
         </div>
       ))}

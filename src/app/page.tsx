@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import LogosEmpresas from '@/components/LogosEmpresas';
 import ProductCard from '@/components/ProductCard';
@@ -38,9 +39,23 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       {/* HERO SECTION */}
-      <section className="relative w-full h-screen bg-gradient-to-br from-ihm-blue to-blue-900 flex items-center justify-center overflow-hidden">
+      <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
+        {/* Imagen de fondo */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/home-contenedores.jpg"
+            alt=""
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
+
+        {/* Overlay degradado */}
+        <div className="absolute inset-0 bg-gradient-to-br from-ihm-blue/55 to-blue-900/55"></div>
+
         {/* Fondo decorativo */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-10 z-10">
           <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
         </div>
@@ -48,10 +63,10 @@ export default function Home() {
         {/* Contenido del Hero */}
         <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-12 text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Importación de Productos desde China
+            Importación de Productos con Proveedores Auditados
           </h1>
           <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Conectamos tu negocio con proveedores de confianza en China. Cotiza tus productos ahora y descubre cómo podemos ayudarte a crecer.
+            Conectamos tu negocio con proveedores confiables en China, Chile, Brasil y Perú. Cotiza tus productos ahora y descubre cómo podemos ayudarte a crecer.
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Link
@@ -75,9 +90,12 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Imagen placeholder (reemplazar con imagen real) */}
           <div className="relative h-96 md:h-full rounded-lg overflow-hidden shadow-lg">
-            <div className="w-full h-full bg-ihm-light flex items-center justify-center">
-              <span className="text-ihm-blue text-sm">Imagen de productos (placeholder)</span>
-            </div>
+            <Image
+              src="/images/equipo-aduana.jpg"
+              alt="Equipo IHM Chile"
+              fill
+              className="object-cover"
+            />
           </div>
 
           {/* Contenido */}
@@ -86,31 +104,56 @@ export default function Home() {
               Quiénes Somos
             </h2>
             <p className="text-gray-600 text-lg mb-4 leading-relaxed">
-              Somos una importadora especializada en conectar empresas chilenas con proveedores confiables en China. 
-              Nuestro objetivo es simplificar el proceso de importación, ofreciendo productos de calidad a precios competitivos.
+              Somos una empresa dedicada a las importaciones, con Servicio Logístico, enfocados en Multi Productos con experiencia en Marketing Promocional, Vestuario, Envases Descartables, Material POP. Nos enfocamos en la búsqueda, diseño, creación y desarrollo de productos innovadores, lo que nos convierte en un excelente aliado para complementar campañas de alto impacto y así aumentar la imagen de marca a un precio competitivo.
             </p>
             <p className="text-gray-600 text-lg mb-6 leading-relaxed">
-              Con años de experiencia en el mercado asiático, garantizamos un servicio personalizado y profesional 
-              para cada uno de nuestros clientes.
+              Trabajamos con fábricas en China, Chile, Brasil y Perú, previamente auditadas y controladas por nuestra área de QC, lo que nos permite obtener mayor nivel de personalización, haciendo productos a medida de cada uno de nuestros clientes.
             </p>
             <ul className="space-y-3 text-gray-700">
               <li className="flex items-start gap-3">
                 <span className="text-ihm-blue text-xl font-bold">✓</span>
-                <span>Acceso a múltiples categorías de productos</span>
+                <span>Servicio logístico integral</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-ihm-blue text-xl font-bold">✓</span>
-                <span>Cotizaciones personalizadas y competitivas</span>
+                <span>Multi productos: Marketing Promocional, Vestuario, Envases Descartables, Material POP</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-ihm-blue text-xl font-bold">✓</span>
-                <span>Asesoría especializada en importación</span>
+                <span>Fábricas auditadas y controladas por nuestra área de QC</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-ihm-blue text-xl font-bold">✓</span>
-                <span>Seguimiento completo de pedidos</span>
+                <span>Personalización de productos a medida de cada cliente</span>
               </li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* VALORES SECTION */}
+      <section className="py-16 md:py-24 px-6 md:px-12 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Valor 1 */}
+          <div className="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition-shadow">
+            <div className="w-12 h-12 bg-ihm-blue text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">
+              💰
+            </div>
+            <h3 className="text-xl font-bold text-ihm-dark mb-3">El mejor producto al mejor precio</h3>
+            <p className="text-gray-600">
+              Estamos enfocados en optimizar los costos, con un producto de calidad y todo el servicio que tu empresa necesita.
+            </p>
+          </div>
+
+          {/* Valor 2 */}
+          <div className="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition-shadow">
+            <div className="w-12 h-12 bg-ihm-blue text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">
+              🌱
+            </div>
+            <h3 className="text-xl font-bold text-ihm-dark mb-3">Siempre preocupados del medio ambiente</h3>
+            <p className="text-gray-600">
+              Contamos con diversos productos realizados a la medida de tus necesidades, además de ser 100% amigables con el ecosistema.
+            </p>
           </div>
         </div>
       </section>

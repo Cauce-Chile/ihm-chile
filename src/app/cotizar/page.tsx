@@ -1,8 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+
+function formatTelefonoDisplay(digits: string): string {
+  const limpio = digits.slice(0, 9); // máximo 9 dígitos
+  const parte1 = limpio.slice(0, 1);
+  const parte2 = limpio.slice(1, 5);
+  const parte3 = limpio.slice(5, 9);
+  return [parte1, parte2, parte3].filter(Boolean).join(' ');
+}
+
+// Dado el string ya formateado, devuelve la posición (índice) justo
+// después del n-ésimo dígito (digitCount), contando espacios incluidos.
+function getPosForDigitCount(formatted: string, digitCount: number): number {
+  if (digitCount <= 0) return 0;
+  let count = 0;
+  for (let i = 0; i < formatted.length; i++) {
+    if (/\d/.test(formatted[i])) {
+      count++;
+      if (count === digitCount) return i + 1;
+    }
+  }
+  return formatted.length;
+}
 
 export default function CotizarPage() {
   // Hooks al inicio
@@ -16,6 +38,8 @@ export default function CotizarPage() {
     mensaje: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const telefonoInputRef = useRef<HTMLInputElement>(null);
 
   // Funciones
   const validateEmail = (email: string): boolean => {
@@ -25,6 +49,7 @@ export default function CotizarPage() {
 
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (submitting) return;
 
     const newErrors: Record<string, string> = {};
 
@@ -57,6 +82,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     }
 
     try {
+      setSubmitting(true);
       // Enviar cotización a la API
       const response = await fetch('/api/cotizaciones', {
         method: 'POST',
@@ -93,6 +119,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       window.location.href = '/confirmacion';
 
     } catch {
+      setSubmitting(false);
       setErrors({ general: 'Hubo un error al enviar tu cotización. Por favor intenta de nuevo.' });
     }
   };
@@ -236,15 +263,27 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
                 {/* Input Teléfono - Solo números */}
                 <input
+                  ref={telefonoInputRef}
                   type="tel"
                   placeholder="9 1234 5678"
-                  value={formData.telefono}
+                  value={formatTelefonoDisplay(formData.telefono)}
                   onChange={(e) => {
+                    const cursorPos = e.target.selectionStart ?? 0;
+                    const digitsBeforeCursor = e.target.value
+                      .slice(0, cursorPos)
+                      .replace(/\D/g, '').length;
+
                     const soloNumeros = e.target.value.replace(/\D/g, '');
                     setFormData({ ...formData, telefono: soloNumeros });
                     if (soloNumeros.trim()) {
                       setErrors({ ...errors, telefono: '' });
                     }
+
+                    requestAnimationFrame(() => {
+                      const formatted = formatTelefonoDisplay(soloNumeros);
+                      const nuevaPos = getPosForDigitCount(formatted, digitsBeforeCursor);
+                      telefonoInputRef.current?.setSelectionRange(nuevaPos, nuevaPos);
+                    });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ihm-blue placeholder-gray-400 text-gray-900"
                 />
@@ -283,9 +322,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               </Link>
               <button
                 type="submit"
-                className="flex-1 px-4 py-3 bg-ihm-blue text-white rounded-lg font-semibold hover:opacity-90 transition"
+                disabled={submitting}
+                className="flex-1 px-4 py-3 bg-ihm-blue text-white rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Enviar Cotización
+                {submitting ? 'Enviando...' : 'Enviar Cotización'}
               </button>
             </div>
           </form>

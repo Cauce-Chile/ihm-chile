@@ -1,5 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import {
+  sendCotizacionAdminNotification,
+  sendCotizacionClienteConfirmation,
+} from '@/lib/resend';
+import { sendCotizacionAdminWhatsApp } from '@/lib/twilio';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,7 +69,7 @@ export async function POST(request: Request) {
     const { data: cotizacion, error: cotizacionError } = await supabase
       .from('cotizaciones')
       .insert({ cliente_id: clienteId, mensaje })
-      .select('id')
+      .select('id, numero')
       .single();
 
     console.log('🔍 Resultado cotización:', JSON.stringify(cotizacion));
@@ -97,6 +102,51 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // 4. Resolver nombres de productos para los correos
+    const productoIds = items.map((item: { id: string; quantity: number }) => item.id);
+    let itemsEmail: { nombre: string; cantidad: number }[];
+
+    try {
+      const { data: productos, error: productosError } = await supabase
+        .from('productos')
+        .select('id, nombre')
+        .in('id', productoIds);
+
+      if (productosError || !productos) throw new Error(productosError?.message ?? 'Sin datos');
+
+      const nombresMap = new Map(
+        productos.map((p: { id: string; nombre: string }) => [p.id, p.nombre])
+      );
+      itemsEmail = items.map((item: { id: string; quantity: number }) => ({
+        nombre: nombresMap.get(item.id) ?? `Producto ${item.id.slice(0, 8)}`,
+        cantidad: item.quantity,
+      }));
+    } catch {
+      itemsEmail = [
+        {
+          nombre: `${items.length} productos solicitados — revisa el panel admin para el detalle completo`,
+          cantidad: 0,
+        },
+      ];
+    }
+
+    // 5. Enviar notificaciones por correo (en paralelo — nunca bloquean el 201)
+    const clienteArg = { nombre, correo, telefono: telefono ?? null, pais: pais ?? null };
+    const cotizacionArg = { id: cotizacion.id, numero: cotizacion.numero, mensaje: mensaje ?? null };
+
+    const [adminResult, clienteResult, whatsappResult] = await Promise.all([
+      sendCotizacionAdminNotification(cotizacionArg, clienteArg, itemsEmail),
+      sendCotizacionClienteConfirmation(clienteArg, cotizacionArg, itemsEmail),
+      sendCotizacionAdminWhatsApp(cotizacionArg, clienteArg),
+    ]);
+
+    if (adminResult.success) console.log('✅ Email admin enviado');
+    else console.error('❌ Email admin:', adminResult.error);
+    if (clienteResult.success) console.log('✅ Email cliente enviado');
+    else console.error('❌ Email cliente:', clienteResult.error);
+    if (whatsappResult.success) console.log('✅ WhatsApp admin enviado');
+    else console.error('❌ WhatsApp admin:', whatsappResult.error);
 
     console.log('✅ Cotización creada exitosamente');
     return NextResponse.json(
