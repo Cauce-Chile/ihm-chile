@@ -142,7 +142,8 @@ export async function sendCotizacionAdminNotification(
       ${mensajeSection}`;
 
     const { error } = await resend.emails.send({
-      from: 'IHM Chile <onboarding@resend.dev>',
+      from: 'IHM Chile <cotizaciones@ihmchile.com>',
+      replyTo: 'cristobal@ihmchile.com',
       to: process.env.ADMIN_EMAIL!,
       subject: `Nueva cotización #${folio} recibida`,
       html: baseLayout(`Nueva cotización #${folio}`, body),
@@ -201,7 +202,8 @@ export async function sendCotizacionClienteConfirmation(
       </p>`;
 
     const { error } = await resend.emails.send({
-      from: 'IHM Chile <onboarding@resend.dev>',
+      from: 'IHM Chile <cotizaciones@ihmchile.com>',
+      replyTo: 'cristobal@ihmchile.com',
       to: cliente.correo,
       subject: 'Hemos recibido tu cotización - IHM Chile',
       html: baseLayout('Confirmación de cotización - IHM Chile', body),
