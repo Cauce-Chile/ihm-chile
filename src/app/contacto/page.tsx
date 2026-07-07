@@ -13,6 +13,8 @@ export default function ContactoPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [enviado, setEnviado] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [errorEnvio, setErrorEnvio] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,15 +37,34 @@ export default function ContactoPage() {
     return nuevosErrores;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const erroresEncontrados = validar();
     if (Object.keys(erroresEncontrados).length > 0) {
       setErrors(erroresEncontrados);
       return;
     }
-    // TODO: En etapa Backend — conectar con API Route para enviar correo vía Resend
-    setEnviado(true);
+
+    setErrorEnvio(false);
+    setEnviando(true);
+    try {
+      const res = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        setErrorEnvio(true);
+        return;
+      }
+
+      setEnviado(true);
+    } catch {
+      setErrorEnvio(true);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   if (enviado) {
@@ -205,11 +226,22 @@ export default function ContactoPage() {
               )}
             </div>
 
+            {errorEnvio && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                No pudimos enviar tu mensaje. Por favor escríbenos directo a{' '}
+                <a href="mailto:cristobal@ihmchile.com" className="font-medium underline">
+                  cristobal@ihmchile.com
+                </a>{' '}
+                o por WhatsApp.
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-ihm-blue text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={enviando}
+              className="w-full bg-ihm-blue text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Enviar mensaje
+              {enviando ? 'Enviando...' : 'Enviar mensaje'}
             </button>
           </form>
         </div>

@@ -71,6 +71,59 @@ function baseLayout(title: string, body: string): string {
 </html>`;
 }
 
+interface ContactoData {
+  nombre: string;
+  correo: string;
+  asunto: string;
+  mensaje: string;
+}
+
+export async function sendContactoNotification(
+  data: ContactoData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const body = `
+      <h2 style="margin:0 0 4px;font-size:20px;color:${IHM_BLUE};font-weight:700;">
+        Nuevo mensaje de contacto
+      </h2>
+      <p style="margin:0 0 24px;font-size:13px;color:#6b7280;">Asunto: <strong>${data.asunto}</strong></p>
+
+      <table width="100%" cellpadding="0" cellspacing="0"
+             style="margin-bottom:24px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;">
+        <tr style="background-color:#f5f7fc;">
+          <td style="padding:10px 16px;font-size:12px;font-weight:700;color:#6b7280;
+                     text-transform:uppercase;letter-spacing:0.05em;">Nombre</td>
+          <td style="padding:10px 16px;font-size:12px;font-weight:700;color:#6b7280;
+                     text-transform:uppercase;letter-spacing:0.05em;">Correo</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 16px;font-size:14px;color:#2d2d2d;">${data.nombre}</td>
+          <td style="padding:12px 16px;font-size:14px;color:#2d2d2d;">${data.correo}</td>
+        </tr>
+      </table>
+
+      <div style="padding:16px;background-color:#f5f7fc;border-radius:6px;
+                   border-left:4px solid ${IHM_BLUE};">
+        <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#6b7280;
+                   text-transform:uppercase;letter-spacing:0.05em;">Mensaje</p>
+        <p style="margin:0;font-size:14px;color:#2d2d2d;white-space:pre-wrap;">${data.mensaje}</p>
+      </div>`;
+
+    const { error } = await resend.emails.send({
+      from: 'IHM Chile <cotizaciones@ihmchile.com>',
+      replyTo: data.correo,
+      to: 'cristobal@ihmchile.com',
+      subject: `Contacto web: ${data.asunto}`,
+      html: baseLayout('Nuevo mensaje de contacto - IHM Chile', body),
+    });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Error desconocido' };
+  }
+}
+
 export async function sendCotizacionAdminNotification(
   cotizacion: CotizacionRef,
   cliente: Cliente,
