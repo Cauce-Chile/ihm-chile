@@ -89,6 +89,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre: formData.nombre,
+          empresa: formData.empresa,
           correo: formData.correo,
           telefono: `${formData.codigoPais}${formData.telefono}`,
           pais: formData.codigoPais,

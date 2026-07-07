@@ -14,12 +14,12 @@ const supabase = createClient(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { nombre, correo, telefono, pais, mensaje, items } = body;
+    const { nombre, correo, telefono, pais, empresa, mensaje, items } = body;
 
     console.log('🔍 POST /api/cotizaciones - body recibido:', JSON.stringify(body));
 
     // Validar campos obligatorios
-    if (!nombre || !correo || !items || items.length === 0) {
+    if (!nombre || !correo || !empresa || !items || items.length === 0) {
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
         { status: 400 }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       console.log('🔍 Cliente nuevo, insertando...');
       const { data: nuevoCliente, error: insertError } = await supabase
         .from('clientes')
-        .insert({ nombre, correo, telefono, pais })
+        .insert({ nombre, correo, telefono, pais, empresa })
         .select('id')
         .single();
 
@@ -68,7 +68,15 @@ export async function POST(request: Request) {
     console.log('🔍 Paso 2: Crear cotización...');
     const { data: cotizacion, error: cotizacionError } = await supabase
       .from('cotizaciones')
-      .insert({ cliente_id: clienteId, mensaje })
+      .insert({
+        cliente_id: clienteId,
+        mensaje,
+        nombre_cliente: nombre,
+        correo_cliente: correo,
+        telefono_cliente: telefono ?? null,
+        pais_cliente: pais ?? null,
+        empresa_cliente: empresa,
+      })
       .select('id, numero')
       .single();
 
@@ -132,7 +140,7 @@ export async function POST(request: Request) {
     }
 
     // 5. Enviar notificaciones por correo (en paralelo — nunca bloquean el 201)
-    const clienteArg = { nombre, correo, telefono: telefono ?? null, pais: pais ?? null };
+    const clienteArg = { nombre, correo, telefono: telefono ?? null, pais: pais ?? null, empresa: empresa ?? null };
     const cotizacionArg = { id: cotizacion.id, numero: cotizacion.numero, mensaje: mensaje ?? null };
 
     const [adminResult, clienteResult, whatsappResult] = await Promise.all([

@@ -21,7 +21,11 @@ export async function GET() {
         numero,
         mensaje,
         creado_en,
-        clientes ( nombre, correo, telefono, pais ),
+        nombre_cliente,
+        correo_cliente,
+        telefono_cliente,
+        pais_cliente,
+        empresa_cliente,
         items_cotizacion ( cantidad, productos ( nombre ) )
       `)
       .order('creado_en', { ascending: false });

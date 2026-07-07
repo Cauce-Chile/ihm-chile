@@ -12,12 +12,11 @@ export interface Cotizacion {
   numero: string;
   mensaje: string | null;
   creado_en: string;
-  clientes: {
-    nombre: string;
-    correo: string;
-    telefono: string | null;
-    pais: string | null;
-  } | null;
+  nombre_cliente: string;
+  correo_cliente: string;
+  telefono_cliente: string | null;
+  pais_cliente: string | null;
+  empresa_cliente: string;
   items_cotizacion: ItemCotizacion[];
 }
 
@@ -56,8 +55,8 @@ export default function CotizacionesAccordion({ cotizaciones }: { cotizaciones: 
     return cotizaciones.filter((cot) => {
       if (busqueda.trim()) {
         const q = busqueda.toLowerCase();
-        const nombre = (cot.clientes?.nombre ?? '').toLowerCase();
-        const correo = (cot.clientes?.correo ?? '').toLowerCase();
+        const nombre = cot.nombre_cliente.toLowerCase();
+        const correo = cot.correo_cliente.toLowerCase();
         if (!nombre.includes(q) && !correo.includes(q)) return false;
       }
 
@@ -163,7 +162,7 @@ export default function CotizacionesAccordion({ cotizaciones }: { cotizaciones: 
                     <div className="hidden md:grid grid-cols-[100px_160px_1fr_100px_32px] gap-4 items-center">
                       <span className="text-ihm-dark font-semibold text-sm">#{cot.numero}</span>
                       <span className="text-gray-600 text-sm">{formatearFecha(cot.creado_en)}</span>
-                      <span className="text-gray-800 text-sm truncate">{cot.clientes?.nombre ?? '—'}</span>
+                      <span className="text-gray-800 text-sm truncate">{cot.nombre_cliente}</span>
                       <span className="text-right text-gray-500 text-sm">{totalProductos}</span>
                       <span className="text-gray-400 text-xs text-right">{estaAbierto ? '▲' : '▼'}</span>
                     </div>
@@ -172,7 +171,7 @@ export default function CotizacionesAccordion({ cotizaciones }: { cotizaciones: 
                     <div className="md:hidden flex justify-between items-center gap-3">
                       <div className="min-w-0">
                         <p className="text-ihm-dark font-semibold text-sm truncate">
-                          #{cot.numero} — {cot.clientes?.nombre ?? '—'}
+                          #{cot.numero} — {cot.nombre_cliente}
                         </p>
                         <p className="text-gray-400 text-xs mt-0.5">
                           {formatearFecha(cot.creado_en)} · {totalProductos} producto{totalProductos !== 1 ? 's' : ''}
@@ -192,12 +191,16 @@ export default function CotizacionesAccordion({ cotizaciones }: { cotizaciones: 
                           <dl className="space-y-1.5 text-sm">
                             <div className="flex gap-2">
                               <dt className="text-gray-400 w-20 shrink-0">Correo</dt>
-                              <dd className="text-ihm-dark break-all">{cot.clientes?.correo ?? '—'}</dd>
+                              <dd className="text-ihm-dark break-all">{cot.correo_cliente}</dd>
                             </div>
-                            {cot.clientes?.telefono && (
+                            <div className="flex gap-2">
+                              <dt className="text-gray-400 w-20 shrink-0">Empresa</dt>
+                              <dd className="text-ihm-dark">{cot.empresa_cliente}</dd>
+                            </div>
+                            {cot.telefono_cliente && (
                               <div className="flex gap-2">
                                 <dt className="text-gray-400 w-20 shrink-0">Teléfono</dt>
-                                <dd className="text-ihm-dark">{cot.clientes.telefono}</dd>
+                                <dd className="text-ihm-dark">{cot.telefono_cliente}</dd>
                               </div>
                             )}
                           </dl>

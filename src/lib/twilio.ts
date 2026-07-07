@@ -10,6 +10,7 @@ interface Cliente {
   correo: string;
   telefono?: string | null;
   pais?: string | null;
+  empresa?: string | null;
 }
 
 interface CotizacionRef {
@@ -29,7 +30,7 @@ export async function sendCotizacionAdminWhatsApp(
       from: process.env.TWILIO_WHATSAPP_FROM!,
       to: process.env.ADMIN_WHATSAPP!,
       contentSid: process.env.TWILIO_CONTENT_SID_ADMIN,
-      contentVariables: JSON.stringify({ '1': folio, '2': cliente.nombre }),
+      contentVariables: JSON.stringify({ '1': folio, '2': cliente.nombre, '3': cliente.empresa ?? '' }),
     });
 
     return { success: true };

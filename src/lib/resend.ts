@@ -11,6 +11,7 @@ interface Cliente {
   correo: string;
   telefono?: string | null;
   pais?: string | null;
+  empresa?: string | null;
 }
 
 interface CotizacionRef {
@@ -115,12 +116,15 @@ export async function sendCotizacionAdminNotification(
                      text-transform:uppercase;letter-spacing:0.05em;">Cliente</td>
           <td style="padding:10px 16px;font-size:12px;font-weight:700;color:#6b7280;
                      text-transform:uppercase;letter-spacing:0.05em;">Correo</td>
+          ${cliente.empresa ? `<td style="padding:10px 16px;font-size:12px;font-weight:700;color:#6b7280;
+                     text-transform:uppercase;letter-spacing:0.05em;">Empresa</td>` : ''}
           ${cliente.telefono ? `<td style="padding:10px 16px;font-size:12px;font-weight:700;color:#6b7280;
                      text-transform:uppercase;letter-spacing:0.05em;">Teléfono</td>` : ''}
         </tr>
         <tr>
           <td style="padding:12px 16px;font-size:14px;color:#2d2d2d;">${cliente.nombre}</td>
           <td style="padding:12px 16px;font-size:14px;color:#2d2d2d;">${cliente.correo}</td>
+          ${cliente.empresa ? `<td style="padding:12px 16px;font-size:14px;color:#2d2d2d;">${cliente.empresa}</td>` : ''}
           ${cliente.telefono ? `<td style="padding:12px 16px;font-size:14px;color:#2d2d2d;">${cliente.telefono}</td>` : ''}
         </tr>
       </table>
@@ -181,6 +185,10 @@ export async function sendCotizacionClienteConfirmation(
         Hola <strong>${cliente.nombre}</strong>, gracias por contactarnos.<br/>
         Hemos registrado tu solicitud correctamente.
       </p>
+
+      ${cliente.empresa ? `<p style="margin:0 0 24px;font-size:14px;color:#6b7280;">
+        Empresa: <strong>${cliente.empresa}</strong>
+      </p>` : ''}
 
       <div style="padding:16px;background-color:#f5f7fc;border-radius:6px;margin-bottom:24px;">
         <p style="margin:0;font-size:13px;color:#6b7280;">Número de referencia</p>
