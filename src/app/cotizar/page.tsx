@@ -274,7 +274,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                       .slice(0, cursorPos)
                       .replace(/\D/g, '').length;
 
-                    const soloNumeros = e.target.value.replace(/\D/g, '');
+                    const soloNumeros = e.target.value.replace(/\D/g, '').slice(0, 9);
                     setFormData({ ...formData, telefono: soloNumeros });
                     if (soloNumeros.trim()) {
                       setErrors({ ...errors, telefono: '' });
