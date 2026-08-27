@@ -289,6 +289,7 @@ export default function Home() {
       </section>
 
       {/* STATS SECTION (Opcional - para mostrar credibilidad) */}
+      {/* Sección oculta temporalmente — métricas 50+ / 1000+ / 24h / 100%
       <section className="py-12 md:py-16 px-6 md:px-12 bg-ihm-light">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 text-center">
@@ -311,6 +312,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      */}
     </main>
   );
 }

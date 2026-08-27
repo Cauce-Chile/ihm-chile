@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from '@/context/CartContext';
 import FloatingCartButton from "@/components/FloatingCartButton";
 import SessionProviderWrapper from '@/components/SessionProviderWrapper';
+import { PostHogProvider } from '@/components/PostHogProvider';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,12 +59,14 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <SessionProviderWrapper>
           <CartProvider>
-            <Navbar />
-            <FloatingCartButton />
-            <main className="flex-1 pt-16">
-              {children}
-            </main>
-            <Footer />
+            <PostHogProvider>
+              <Navbar />
+              <FloatingCartButton />
+              <main className="flex-1 pt-16">
+                {children}
+              </main>
+              <Footer />
+            </PostHogProvider>
           </CartProvider>
         </SessionProviderWrapper>
       </body>
