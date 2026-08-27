@@ -1,7 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
+import TurnstileWidget, {
+  type TurnstileWidgetHandle,
+  TURNSTILE_UNAVAILABLE,
+} from '@/components/TurnstileWidget';
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +19,8 @@ export default function ContactoPage() {
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [errorEnvio, setErrorEnvio] = useState(false);
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,13 +52,35 @@ export default function ContactoPage() {
     }
 
     setErrorEnvio(false);
+    setTurnstileError(null);
     setEnviando(true);
     try {
+      let token: string;
+      try {
+        token = await turnstileRef.current!.execute();
+      } catch (err) {
+        const isUnavailable =
+          err instanceof Error && err.message === TURNSTILE_UNAVAILABLE;
+        setTurnstileError(
+          isUnavailable
+            ? 'No pudimos verificar tu conexión. Si usas un bloqueador de anuncios o una red corporativa, intenta desactivarlo temporalmente o escríbenos directamente a cristobal@ihmchile.com'
+            : 'La verificación de seguridad falló. Inténtalo nuevamente.'
+        );
+        return;
+      }
+
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, 'cf-turnstile-response': token }),
       });
+
+      if (res.status === 400) {
+        setTurnstileError(
+          'La verificación de seguridad falló. Inténtalo nuevamente.'
+        );
+        return;
+      }
 
       if (!res.ok) {
         setErrorEnvio(true);
@@ -64,6 +92,7 @@ export default function ContactoPage() {
       setErrorEnvio(true);
     } finally {
       setEnviando(false);
+      turnstileRef.current?.reset();
     }
   };
 
@@ -235,6 +264,21 @@ export default function ContactoPage() {
                 o por WhatsApp.
               </div>
             )}
+
+            {turnstileError && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {turnstileError}
+              </div>
+            )}
+
+            <TurnstileWidget
+              ref={turnstileRef}
+              onError={() =>
+                setTurnstileError(
+                  'La verificación de seguridad falló. Inténtalo nuevamente.'
+                )
+              }
+            />
 
             <button
               type="submit"

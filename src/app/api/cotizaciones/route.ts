@@ -5,6 +5,7 @@ import {
   sendCotizacionClienteConfirmation,
 } from '@/lib/resend';
 import { sendCotizacionAdminWhatsApp } from '@/lib/twilio';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,8 +16,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { nombre, correo, telefono, pais, empresa, mensaje, items } = body;
+    const turnstileToken = body['cf-turnstile-response'];
 
     console.log('🔍 POST /api/cotizaciones - body recibido:', JSON.stringify(body));
+
+    const turnstileOk = await verifyTurnstileToken(turnstileToken);
+    if (!turnstileOk) {
+      return NextResponse.json(
+        { error: 'Verificación de seguridad fallida. Intenta nuevamente.' },
+        { status: 400 }
+      );
+    }
 
     // Validar campos obligatorios
     if (!nombre || !correo || !empresa || !items || items.length === 0) {
