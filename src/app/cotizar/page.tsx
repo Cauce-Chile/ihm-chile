@@ -3,6 +3,10 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import TurnstileWidget, {
+  type TurnstileWidgetHandle,
+  TURNSTILE_UNAVAILABLE,
+} from '@/components/TurnstileWidget';
 
 function formatTelefonoDisplay(digits: string): string {
   const limpio = digits.slice(0, 9); // máximo 9 dígitos
@@ -40,6 +44,7 @@ export default function CotizarPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const telefonoInputRef = useRef<HTMLInputElement>(null);
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
 
   // Funciones
   const validateEmail = (email: string): boolean => {
@@ -83,6 +88,23 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
     try {
       setSubmitting(true);
+
+      // Verificación anti-bot (Turnstile) antes de enviar
+      let turnstileToken: string;
+      try {
+        turnstileToken = await turnstileRef.current!.execute();
+      } catch (err) {
+        const isUnavailable =
+          err instanceof Error && err.message === TURNSTILE_UNAVAILABLE;
+        setSubmitting(false);
+        setErrors({
+          general: isUnavailable
+            ? 'No pudimos verificar tu conexión. Si usas un bloqueador de anuncios o una red corporativa, intenta desactivarlo temporalmente o escríbenos directamente a cristobal@ihmchile.com'
+            : 'La verificación de seguridad falló. Inténtalo nuevamente.',
+        });
+        return;
+      }
+
       // Enviar cotización a la API
       const response = await fetch('/api/cotizaciones', {
         method: 'POST',
@@ -98,8 +120,17 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             id: item.id,
             quantity: item.quantity,
           })),
+          'cf-turnstile-response': turnstileToken,
         }),
       });
+
+      if (response.status === 400) {
+        setSubmitting(false);
+        setErrors({
+          general: 'La verificación de seguridad falló. Inténtalo nuevamente.',
+        });
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Error al enviar la cotización');
@@ -122,6 +153,8 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     } catch {
       setSubmitting(false);
       setErrors({ general: 'Hubo un error al enviar tu cotización. Por favor intenta de nuevo.' });
+    } finally {
+      turnstileRef.current?.reset();
     }
   };
 
@@ -312,6 +345,17 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 <p className="text-red-600 text-sm">{errors.general}</p>
               </div>
             )}
+
+            {/* Verificación anti-bot */}
+            <TurnstileWidget
+              ref={turnstileRef}
+              onError={() =>
+                setErrors({
+                  general:
+                    'La verificación de seguridad falló. Inténtalo nuevamente.',
+                })
+              }
+            />
 
             {/* Botones */}
             <div className="flex gap-3 pt-6">

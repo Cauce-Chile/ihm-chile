@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 import { sendContactoNotification } from '@/lib/resend';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { nombre, correo, asunto, mensaje } = body;
+    const turnstileToken = body['cf-turnstile-response'];
+
+    const turnstileOk = await verifyTurnstileToken(turnstileToken);
+    if (!turnstileOk) {
+      return NextResponse.json(
+        { error: 'Verificación de seguridad fallida. Intenta nuevamente.' },
+        { status: 400 }
+      );
+    }
 
     if (!nombre || !correo || !asunto || !mensaje) {
       return NextResponse.json(
